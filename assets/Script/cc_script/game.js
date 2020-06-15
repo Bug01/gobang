@@ -63,7 +63,17 @@ cc.Class({
         KBEngine.Event.register("msg_ackCancelMatch", this, "msg_ackCancelMatch");
         KBEngine.Event.register("msg_tellJoinRoom", this, "msg_tellJoinRoom");
 
-        KBEngine.Event.register('exit', this, 'exit');
+        KBEngine.Event.register('reqExit', this, 'reqExit');
+    },
+
+    // 开始匹配按钮事件
+    onStartMatch() {
+        KBEngine.Event.fire('startMatch', 1);
+    },
+
+    // 取消匹配按钮事件
+    onCancelMatch() {
+        KBEngine.Event.fire('cancelMatch');
     },
 
     //-------------------------------------------------------
@@ -112,7 +122,7 @@ cc.Class({
     // 本地消息 begin
     //-------------------------------------------------------
     // 离开
-    exit(){
+    reqExit(){
         this.curRoom.active = false;
     },
     

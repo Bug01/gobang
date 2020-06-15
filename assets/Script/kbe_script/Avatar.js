@@ -33,8 +33,12 @@ KBEngine.Avatar = KBEngine.Entity.extend({
         KBEngine.Event.register('startMatch', this, 'startMatch');
         KBEngine.Event.register('cancelMatch', this, 'cancelMatch');
         KBEngine.Event.register('loadDone', this, 'loadDone');
-        KBEngine.Event.register('ready', this, 'ready');
+        KBEngine.Event.register('reqReady', this, 'reqReady');
         KBEngine.Event.register('reqChess', this, 'reqChess');
+        KBEngine.Event.register('reqDraw', this, 'reqDraw');
+        KBEngine.Event.register('reqBackChess', this, 'reqBackChess');
+        KBEngine.Event.register('reqLose', this, 'reqLose');
+        
     },
     
     // 开始匹配
@@ -67,8 +71,8 @@ KBEngine.Avatar = KBEngine.Entity.extend({
     },
 
     // 准备
-    ready(){
-        console.log('ready.');
+    reqReady(){
+        console.log('reqReady.');
 
         this.cellCall('CExs_reqReady');
     },
@@ -78,6 +82,24 @@ KBEngine.Avatar = KBEngine.Entity.extend({
         console.log('reqChess. x:' + x + ", y:" + y);
 
         this.cellCall('CExs_reqChess', x, y);
+    },
+
+    reqDraw(bDraw){
+        console.log('reqDraw. bDraw:' + bDraw);
+
+        this.cellCall('CExs_reqDraw', bDraw);
+    },
+
+    reqBackChess(tp){
+        console.log('reqBackChess. tp:' + tp);
+
+        this.cellCall('CExs_reqBackChess', tp);
+    },
+
+    reqLose(){
+        console.log('reqLose.');
+
+        this.cellCall('CExs_reqLose');
     },
     
     //-------------------------------------------------------
@@ -188,11 +210,11 @@ KBEngine.Avatar = KBEngine.Entity.extend({
 
     //通知当前操作玩家
 	// 参数1：当然玩家座位号
-    Exs_tellCurPlayer(curChairID){
-        console.log('Exs_tellCurPlayer.' + curChairID);
+    Exs_tellCurPlayer(curRound, curChairID){
+        console.log('Exs_tellCurPlayer.' + curRound + ', curChairID: ' + curChairID);
 
         this.curChairID = curChairID;
-        KBEngine.Event.fire('msg_tellCurPlayere', curChairID);
+        KBEngine.Event.fire('msg_tellCurPlayere', curRound, curChairID);
     },
 
     // 通知玩家下子

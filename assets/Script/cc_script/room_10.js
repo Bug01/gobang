@@ -71,7 +71,7 @@ cc.Class({
         
         // 初始化牌桌信息
         this.width = 45;
-        this.radius = 15;
+        this.radius = 20;
         this.tableData = new Array();
         for(var i = 0; i < 15; i++){
             this.tableData[i] = new Array();
@@ -108,6 +108,9 @@ cc.Class({
                 }
             }
         }
+        // 清理玩家棋子标识
+        this.tarPlayer.getChildByName('color').removeAllChildren();
+        this.myPlayer.getChildByName('color').removeAllChildren();
     },
 
     // 注册事件
@@ -132,6 +135,33 @@ cc.Class({
         this.table.off(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
 
         KBEngine.Event.deregisterAll(this);
+    },
+
+    // 准备按钮事件
+    onReady(){
+        KBEngine.Event.fire('reqReady');
+    },
+
+    onExit(){
+        KBEngine.Event.fire('reqExit');
+    },
+
+    // 悔棋
+    //  1：请求悔棋
+	//  2：同意悔棋
+	//  3：不同意悔棋
+    reqBackChess(tp){
+        KBEngine.Event.fire('reqBackChess', tp);
+    },
+
+    reqLose(){
+        KBEngine.Event.fire('reqLose', tp);
+    },
+
+    // 请求和棋
+    //  参数1：是否同意和棋
+    reqDraw(bDraw){
+        KBEngine.Event.fire('reqDraw', bDraw);
     },
 
     //-------------------------------------------------------
@@ -219,8 +249,24 @@ cc.Class({
         this.startLayer.runAction(seq);
     },
 
-    msg_tellCurPlayere(curChairID){
+    msg_tellCurPlayere(curRound, curChairID){
         console.log('msg_tellCurPlayere' + curChairID);
+        
+        // 第一回合 开启计时器
+        if(curRound == 1){
+            this.schedule(this.onTimerCallback, 1);
+        }
+
+        // 显示操作定时器
+        var player = KBEngine.app.player();
+        if(player.pub_chairID == curChairID) {
+            this.myPlayer.getChildByName('time').getComponent('cc.Label').string = 30;
+            this.tarPlayer.getChildByName('time').getComponent('cc.Label').string = '';
+        }
+        else {
+            this.myPlayer.getChildByName('time').getComponent('cc.Label').string = '';
+            this.tarPlayer.getChildByName('time').getComponent('cc.Label').string = 30;
+        }
     },
 
     msg_tellPlayerChes(chairID, pos_x, pos_y){
@@ -237,6 +283,9 @@ cc.Class({
 
     msg_onEndGame(winChairID){
         console.log('msg_onEndGame' + winChairID);
+        
+        // 取消定时器
+        this.unschedule(this.onTimerCallback);
 
         // 展示结局
         var player = KBEngine.app.player();
@@ -306,6 +355,12 @@ cc.Class({
         else{
             online.active = true;
         }
+
+        // 颜色状态
+        var color = p.getChildByName('color');
+        var piece = cc.instantiate(this.allPiece[entity.pub_chairID]);
+        piece.scale = 2;
+        color.addChild(piece);
     },
 
     onTouchEnd(event){
@@ -362,9 +417,21 @@ cc.Class({
     // 位置转换为坐标点
     posToPoint(x, y){
         // 棋盘与边框距离为10
-        x = x * this.width - 315;
-        y = y * this.width - 315;
+        x = x * this.width;
+        y = y * this.width;
 
         return cc.v2(x, y);
+    },
+
+    onTimerCallback(){
+        if(this.myPlayer.getChildByName('time').getComponent('cc.Label').string != '' &&
+            this.myPlayer.getChildByName('time').getComponent('cc.Label').string > 0){
+            this.myPlayer.getChildByName('time').getComponent('cc.Label').string -= 1;
+        }
+        else if(this.tarPlayer.getChildByName('time').getComponent('cc.Label').string != '' &&
+            this.tarPlayer.getChildByName('time').getComponent('cc.Label').string > 0){
+            this.tarPlayer.getChildByName('time').getComponent('cc.Label').string -= 1;
+        }
+        
     }
 });

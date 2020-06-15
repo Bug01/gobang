@@ -3937,10 +3937,14 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 		KBEngine.app.createAccount_loginapp(true);
 	}
 	
-	this.getServerAddr = function(ip, port)
+	this.getServerAddr = function(ip, port, app)
 	{
 		var serverAddr = KBEngine.app.protocol + ip;
-		if(port != "")
+		
+		if(KBEngine.app.isWss) {
+			serverAddr += '/'+ app + '?port=' + port;
+		}
+		else if(port != "")
 		{
 			serverAddr += ":" + port;
 		}
@@ -3952,7 +3956,7 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 	{  
 		if(noconnect)
 		{
-			var serverAddr = this.getServerAddr(KBEngine.app.ip, KBEngine.app.port);
+			var serverAddr = this.getServerAddr(KBEngine.app.ip, KBEngine.app.port, "loginapp");
 			KBEngine.INFO_MSG("KBEngineApp::createAccount_loginapp: start connect to " + serverAddr + "!");
 			KBEngine.app.currconnect = "loginapp";
 			KBEngine.app.connect(serverAddr);
@@ -4012,7 +4016,7 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 	{  
 		if(noconnect)
 		{
-			var serverAddr = this.getServerAddr(KBEngine.app.ip, KBEngine.app.port);
+			var serverAddr = this.getServerAddr(KBEngine.app.ip, KBEngine.app.port, "loginapp");
 			KBEngine.INFO_MSG("KBEngineApp::login_loginapp: start connect to " + serverAddr + "!");
 			KBEngine.app.currconnect = "loginapp";
 			KBEngine.app.connect(serverAddr);
@@ -4061,7 +4065,7 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 	{  
 		if(noconnect)
 		{
-			var serverAddr = this.getServerAddr(KBEngine.app.ip, KBEngine.app.port);
+			var serverAddr = this.getServerAddr(KBEngine.app.ip, KBEngine.app.port, "loginapp");
 			KBEngine.INFO_MSG("KBEngineApp::resetpassword_loginapp: start connect to " + serverAddr + "!");
 			KBEngine.app.currconnect = "loginapp";
 			KBEngine.app.connect(serverAddr);
@@ -4099,7 +4103,7 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 	{  
 		if(noconnect)
 		{
-			KBEngine.Event.fire(KBEngine.EventTypes.onLoginBaseapp);
+			KBEngine.Event.fire(KBEngine.EventTypes.onLoginBaseapp, "baseapp");
 			var serverAddr = this.getServerAddr(KBEngine.app.baseappIp, KBEngine.app.baseappTCPPort);
 			KBEngine.INFO_MSG("KBEngineApp::login_baseapp: start connect to " + serverAddr + "!");
 			KBEngine.app.currconnect = "baseapp";
@@ -4130,7 +4134,7 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 		KBEngine.app.resetSocket();
 		KBEngine.Event.fire(KBEngine.EventTypes.onReloginBaseapp);
 
-		var serverAddr = this.getServerAddr(KBEngine.app.baseappIp, KBEngine.app.baseappTCPPort);
+		var serverAddr = this.getServerAddr(KBEngine.app.baseappIp, KBEngine.app.baseappTCPPort, "baseapp");
 		KBEngine.INFO_MSG("KBEngineApp::reloginBaseapp: start connect to " + serverAddr + "!");
 		KBEngine.app.currconnect = "baseapp";
 		KBEngine.app.connect(serverAddr);
