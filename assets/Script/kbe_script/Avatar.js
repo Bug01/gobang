@@ -35,10 +35,9 @@ KBEngine.Avatar = KBEngine.Entity.extend({
         KBEngine.Event.register('loadDone', this, 'loadDone');
         KBEngine.Event.register('reqReady', this, 'reqReady');
         KBEngine.Event.register('reqChess', this, 'reqChess');
-        KBEngine.Event.register('reqDraw', this, 'reqDraw');
-        KBEngine.Event.register('reqBackChess', this, 'reqBackChess');
-        KBEngine.Event.register('reqLose', this, 'reqLose');
-        
+        KBEngine.Event.register('reqConsent', this, 'reqConsent');    
+        KBEngine.Event.register('reqConsentBack', this, 'reqConsentBack');    
+        KBEngine.Event.register('reqLose', this, 'reqLose');    
     },
     
     // 开始匹配
@@ -73,34 +72,36 @@ KBEngine.Avatar = KBEngine.Entity.extend({
     // 准备
     reqReady(){
         console.log('reqReady.');
-
         this.cellCall('CExs_reqReady');
     },
 
     // 请求下子
     reqChess(x, y){
         console.log('reqChess. x:' + x + ", y:" + y);
-
         this.cellCall('CExs_reqChess', x, y);
     },
 
-    reqDraw(bDraw){
-        console.log('reqDraw. bDraw:' + bDraw);
-
-        this.cellCall('CExs_reqDraw', bDraw);
+    // 请求对方同意
+    // tp = 1 和棋
+    // tp = 2 悔棋
+    reqConsent(tp){
+        console.log('reqConsent. tp:' + tp);
+        this.cellCall('CExs_reqConsent', tp);
     },
 
-    reqBackChess(tp){
-        console.log('reqBackChess. tp:' + tp);
-
-        this.cellCall('CExs_reqBackChess', tp);
+    // 回应对方请求
+    // tp = 1 和棋
+    // tp = 2 悔棋
+    reqConsentBack(tp, bAgree) {
+        console.log('reqConsentBack. tp:' + tp + ', bAgree:' + bAgree);
+        this.cellCall('CExs_reqConsentBack', tp, bAgree);
     },
 
     reqLose(){
         console.log('reqLose.');
-
         this.cellCall('CExs_reqLose');
     },
+    
     
     //-------------------------------------------------------
     // 服务器消息 begin
@@ -227,6 +228,30 @@ KBEngine.Avatar = KBEngine.Entity.extend({
         KBEngine.Event.fire('msg_tellPlayerChes', chairID, pos_x, pos_y);
     },
 
+    // 通知角色请求同意
+    // 参数1：请求的玩家位置
+    // 参数2：请求类型
+    // 		1：和棋
+    // 		2：悔棋
+    Exs_tellPlayerConsent(chairID, tp) {
+        console.log('Exs_tellPlayerConsent.' + chairID + ", tp:" + tp);
+
+        KBEngine.Event.fire('msg_tellPlayerConsent', chairID, tp);
+    },
+
+    // 通知角色回应请求同意
+	// 参数1：回应的玩家位置
+	// 参数2：回应类型
+	// 		1：和棋
+	// 		2：悔棋
+	// 参数3：是否同意
+    Exs_tellPlayerConsentBack(chairID, tp, bAgree) {
+        console.log('Exs_tellPlayerConsentBack.' + chairID + ", tp:" + tp);
+
+        KBEngine.Event.fire('msg_tellPlayerConsentBack', chairID, tp, bAgree);
+    },
+
+    // 通知游戏结束
     Exs_onEndGame(winChairID){
         console.log('Exs_onEndGame.' + winChairID);
 

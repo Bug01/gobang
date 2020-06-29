@@ -60,12 +60,22 @@ cc.Class({
             default: null,
             type: cc.Node,
         },
+
+        // 和棋页
+        drawLayer: {
+            default: null,
+            type: cc.Node,
+        },
+
+        // 悔棋页
+        backChessLayer: {
+            default: null,
+            type: cc.Node,
+        },
     },
 
     // 控件可见时 做初始化界面
     onEnable(){
-        console.log('room_10:onEnable.');
-
         // 注册事件
         this.installEvents();
         
@@ -87,6 +97,8 @@ cc.Class({
         this.newPiece.active = false;
         this.startLayer.active = false;
         this.endLayer.active = false;
+        this.drawLayer.active = false;
+        this.backChessLayer.active = false;
 
         // 加载完成
         KBEngine.Event.fire('loadDone');
@@ -127,6 +139,8 @@ cc.Class({
         KBEngine.Event.register("msg_onStartGame", this, "msg_onStartGame");
         KBEngine.Event.register("msg_tellCurPlayere", this, "msg_tellCurPlayere");
         KBEngine.Event.register("msg_tellPlayerChes", this, "msg_tellPlayerChes");
+        KBEngine.Event.register("msg_tellPlayerConsent", this, "msg_tellPlayerConsent");
+        KBEngine.Event.register("msg_tellPlayerConsentBack", this, "msg_tellPlayerConsentBack");
         KBEngine.Event.register("msg_onEndGame", this, "msg_onEndGame");
     },
 
@@ -146,22 +160,30 @@ cc.Class({
         KBEngine.Event.fire('reqExit');
     },
 
-    // 悔棋
-    //  1：请求悔棋
-	//  2：同意悔棋
-	//  3：不同意悔棋
-    reqBackChess(tp){
-        KBEngine.Event.fire('reqBackChess', tp);
-    },
-
-    reqLose(){
-        KBEngine.Event.fire('reqLose', tp);
-    },
-
     // 请求和棋
-    //  参数1：是否同意和棋
-    reqDraw(bDraw){
-        KBEngine.Event.fire('reqDraw', bDraw);
+    reqDraw(){
+        KBEngine.Event.fire('reqConsent', 1);
+    },
+
+    // 和棋回应
+    reqDrawBack(event, bAgree){
+        console.log('bAgree' + bAgree);
+        KBEngine.Event.fire('reqConsentBack', 1, parseInt(bAgree));
+    },
+
+    // 请求悔棋
+    reqBackChess(){
+        KBEngine.Event.fire('reqConsent', 2);
+    },
+
+    // 悔棋回应
+    reqBackChessBack(event, bAgree){
+        KBEngine.Event.fire('reqConsentBack', 2, parseInt(bAgree));
+    },
+
+    // 请求认输
+    reqLose(){
+        KBEngine.Event.fire('reqLose');
     },
 
     //-------------------------------------------------------
@@ -281,6 +303,35 @@ cc.Class({
         this.tableData[pos_x][pos_y] = piece;
     },
 
+    msg_tellPlayerConsent(chairID, tp) {
+        var player = KBEngine.app.player();
+        if(player.pub_chairID != chairID) {
+            // 和棋请求
+            if(tp == 1) {
+                this.drawLayer.active = true;
+            }
+            // 悔棋请求
+            else if(tp == 2) {
+                this.backChessLayer.active = true;
+            }
+        }
+    },
+
+
+    msg_tellPlayerConsentBack(chairID, tp, bAgree) {
+        var player = KBEngine.app.player();
+        if(player.pub_chairID == chairID) {
+            // 和棋请求
+            if(tp == 1) {
+                this.drawLayer.active = false;
+            }
+            // 悔棋请求
+            else if(tp == 2) {
+                this.backChessLayer.active = false;
+            }
+        }
+    },
+
     msg_onEndGame(winChairID){
         console.log('msg_onEndGame' + winChairID);
         
@@ -290,15 +341,16 @@ cc.Class({
         // 展示结局
         var player = KBEngine.app.player();
         this.endLayer.active = true;
-        var win = this.endLayer.getChildByName('win');
-        var lose = this.endLayer.getChildByName('lose');
-        if(player.pub_chairID == winChairID){
-            win.active = true;
-            lose.active = false;
+        var winStaus = this.endLayer.getChildByName('winStaus').getComponent('cc.Label');
+
+        if(winChairID == 0) {
+            winStaus.string = '和棋啦！';
+        }
+        else if(player.pub_chairID == winChairID){
+            winStaus.string = '你赢啦！';
         }
         else{
-            win.active = false;
-            lose.active = true;
+            winStaus.string = '你输啦！';
         }
     },
 
