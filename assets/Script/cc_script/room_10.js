@@ -141,6 +141,7 @@ cc.Class({
         KBEngine.Event.register("msg_tellPlayerChes", this, "msg_tellPlayerChes");
         KBEngine.Event.register("msg_tellPlayerConsent", this, "msg_tellPlayerConsent");
         KBEngine.Event.register("msg_tellPlayerConsentBack", this, "msg_tellPlayerConsentBack");
+        KBEngine.Event.register("msg_tellPlayerBackChess", this, "msg_tellPlayerBackChess");
         KBEngine.Event.register("msg_onEndGame", this, "msg_onEndGame");
     },
 
@@ -293,11 +294,8 @@ cc.Class({
 
     msg_tellPlayerChes(chairID, pos_x, pos_y){
         // 绘制棋子
-        var pos = this.posToPoint(pos_x, pos_y)
+        var pos = this.posToPoint(pos_x, pos_y);
         var piece = this.drawCirl(chairID, pos.x, pos.y);
-
-        // 最新棋子标记
-        this.newPiece.setPosition(pos.x, pos.y);
 
         // 记录棋子数据
         this.tableData[pos_x][pos_y] = piece;
@@ -332,6 +330,19 @@ cc.Class({
         }
     },
 
+    msg_tellPlayerBackChess(back_x, back_y, last_x, last_y) {
+        // 查找棋子
+        var piece = this.tableData[back_x][back_y];
+        this.table.removeChild(piece);
+
+        this.tableData[back_x][back_y] = null;
+
+        // 设置最后落子标识
+        cc.error('last: ' + last_x + ", " + last_y);
+        var pos = this.posToPoint(last_x, last_y);
+        this.newPiece.setPosition(pos.x, pos.y);
+    },
+
     msg_onEndGame(winChairID){
         console.log('msg_onEndGame' + winChairID);
         
@@ -363,6 +374,9 @@ cc.Class({
         var piece = cc.instantiate(this.allPiece[chairID]);
         piece.setPosition(x, y);
         this.table.addChild(piece);
+
+        // 最新棋子标记
+        this.newPiece.setPosition(x, y);
 
         return piece;
     },

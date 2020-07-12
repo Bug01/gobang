@@ -3,4 +3,5 @@
 window.G_Server = {
     'ip'    : '127.0.0.1',
     'port'  : 20013,
+    'isWss' : false,
 }

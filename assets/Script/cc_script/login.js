@@ -9,7 +9,6 @@
 //  - [English] http://www.cocos2d-x.org/docs/creator/en/scripting/life-cycle-callbacks.html
 var KBEngine = require("kbengine");
 
-
 cc.Class({
     extends: cc.Component,
 
@@ -19,9 +18,9 @@ cc.Class({
     onLoad () {
         var args = new KBEngine.KBEngineArgs();
 		args.ip = G_Server['ip'];
-		args.port = G_Server['port'];
+        args.port = G_Server['port'];
+        args.isWss = G_Server['isWss'];
         KBEngine.create(args);
-        console.log("app");
 
         this.installEvents();
 

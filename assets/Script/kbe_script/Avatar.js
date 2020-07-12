@@ -251,6 +251,17 @@ KBEngine.Avatar = KBEngine.Entity.extend({
         KBEngine.Event.fire('msg_tellPlayerConsentBack', chairID, tp, bAgree);
     },
 
+    // 通知角色撤销下棋
+	// 参数1：下子位置x
+    // 参数2：下子位置y
+    // 参数3：当前最后落子x
+    // 参数4：当前最后落子y
+    Exs_tellPlayerBackChess(back_x, back_y, last_x, last_y) {
+        console.log('Exs_tellPlayerBackChess. back_x:' + back_x + ", back_y:" + back_y);
+
+        KBEngine.Event.fire('msg_tellPlayerBackChess', back_x, back_y, last_x, last_y);
+    },
+
     // 通知游戏结束
     Exs_onEndGame(winChairID){
         console.log('Exs_onEndGame.' + winChairID);
