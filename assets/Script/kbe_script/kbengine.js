@@ -800,7 +800,7 @@ KBEngine.MemoryStream = function(size_or_buffer)
 		
 		this.wpos += size;
 	}
-	
+
 	this.writeString = function(v)
 	{
 		if(v.length > this.space())
@@ -1080,6 +1080,14 @@ KBEngine.Bundle = function()
 	{
 		this.checkStream(v.length + 4);
 		this.stream.writeBlob(v);
+	}
+
+	// clientData对中文的支持
+	this.writeClientData = function(v)
+	{
+		var s = KBEngine.stringToUTF8Bytes(v);
+		this.checkStream(s.length + 4);
+		this.stream.writeBlob(s);
 	}
 
 	this.clear = function()
@@ -3968,7 +3976,8 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 			bundle.newMessage(KBEngine.messages.Loginapp_reqCreateAccount);
 			bundle.writeString(KBEngine.app.username);
 			bundle.writeString(KBEngine.app.password);
-			bundle.writeBlob(KBEngine.app.clientdatas);
+			// bundle.writeBlob(KBEngine.app.clientdatas);
+			bundle.writeClientData(KBEngine.app.clientdatas);
 			bundle.send(KBEngine.app);
 		}
 	}
@@ -4027,7 +4036,8 @@ KBEngine.KBEngineApp = function(kbengineArgs)
 			var bundle = KBEngine.Bundle.createObject();
 			bundle.newMessage(KBEngine.messages.Loginapp_login);
 			bundle.writeInt8(KBEngine.app.args.clientType); // clientType
-			bundle.writeBlob(KBEngine.app.clientdatas);
+			bundle.writeClientData(KBEngine.app.clientdatas);
+			// bundle.writeBlob(KBEngine.app.clientdatas);
 			bundle.writeString(KBEngine.app.username);
 			bundle.writeString(KBEngine.app.password);
 			bundle.send(KBEngine.app);

@@ -57,9 +57,9 @@ cc.Class({
         if(cc.sys.isBrowser){
             var account = "account_" + parseInt(Math.random() * 100);
             var userInfo = {
-                'nickName' : account,
+                'nickName'  : account,
                 'avatarUrl' : '',
-                'gender' : 0,
+                'gender'    : 0,
             }
             KBEngine.Event.fire('login', "0:" + account, account, JSON.stringify(userInfo));
         }
@@ -92,24 +92,20 @@ cc.Class({
                     // 授权按钮
                     let button = wx.createUserInfoButton({
                         type: 'text',
-                        text: '获取用户信息',
+                        text: '',
                         style: {
-                          left: 10,
-                          top: 76,
-                          width: 200,
-                          height: 40,
-                          lineHeight: 40,
-                          backgroundColor: '#ff0000',
-                          color: '#ffffff',
-                          textAlign: 'center',
-                          fontSize: 16,
-                          borderRadius: 4
+                          left: 0,
+                          top: 0,
+                          width: cc.winSize.width,
+                          height: cc.winSize.height,
+                          backgroundColor: '#FFFFFF00',
                         }
                       })
 
                     button.onTap((res) => {
                         if (res.userInfo) {
                             console.log("用户授权成功.");
+                            button.destroy();
 
                             // 走登陆
                             self._wxLogin();
@@ -129,7 +125,6 @@ cc.Class({
                     success(userInfo) {
                         //发起网络请求
                         console.log("登陆成功！");
-                        //JSON.stringify(userInfo['signature']);
                         KBEngine.Event.fire('login', "1:" + res.code, userInfo['signature'], userInfo['rawData']);
                     }
                 })
